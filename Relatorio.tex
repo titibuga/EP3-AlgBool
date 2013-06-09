@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc} %Deixa eu colocar letras com ascentos
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{arrows, decorations.pathmorphing,backgrounds, positioning, fit, petri}
+
+
+
+\title{Exercício Programa 3}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduç\~ao}
+
+Este relatório tem como objetivo dar uma explicação das principais funcionalidades do circuito feito nesse exercício programa. Assim, esse relatório pode ser de grande ajuda na hora de entender o EP.
+
+
+\subsection*{Integrantes}
+
+\begin{itemize}
+
+\item Victor Sanches Portella - Nº USP: 7991152
+
+\item Mateus Barros Rodrigues - Nº USP: 7991037
+
+\item Gervásio Santos - Nº USP:
+
+\item Vinícius Vendramini - Nº USP: 
+
+\end{itemize}
+
+\section{Circuito}
+
+Como a \textbf{Memória RAM}, o \textbf{IR}  e o \textbf{ACC} são circuitos já implementados pelo Logisim, explicaremos a funcionalidade do \textbf{PC}, do \textbf{Controle} e como esses circuitos são integrados. 
+
+\subsection{PC (Program Counter)}
+
+Para fazer o PC, usamos 8 flip-flops JK, todos inicialmente em 0. Quando um pulso é mandado para a entrada \emph{Counter} do circuito, somamos 1 no contador, considerando que os 8 flip-flops forma um número de 8 bits.
+
+Quando a entrada \emph{SETTER} do PC está alta, o valor dos flip-flops (ou seja, do contador em si) será igual ao valor de 8 bits da entrada 	\emph{Number} do circuito. Em \emph{OUT} temos o valor do contador do PC.
+
+\subsection{Controle}
+
+Para fazer o controle, fizemos um circuito sequencial com quatro estados:
+
+\begin{itemize}
+
+\item \textbf{Estado 0:} Tranfere o que está no endereço apontado pelo PC na Memória RAM para o IR.
+
+\item \textbf{Estado 1:} Tranfere o conteúdo do IR para dentro do controlador.
+
+\item \textbf{Estado 2:} Interpretação do comando.
+
+\item \textbf{Estado 3:} Soma-se em 1 o valor do PC.
+
+\end{itemize}
+
+Sendo que esses estados seguem o seguinte diagrama:
+\begin{figure}[!hbtp]
+\centering
+
+
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,estado/.style={circle, draw=black, fill=blue!20, thick}]
+
+\node[estado]  (e0)  at (0,0)  {e0};
+	
+\node[estado]  (e1)  at (5,0)  {e1};
+	
+\node[estado]  (e2)  [below=of e1]  {e2};
+     	
+\node[estado]  (e3)  [below=of e0]   {e3};
+	
+
+\path
+(e0) edge [loop above] node {0/0} (e0)
+	
+(e1) 	 edge [loop above] node {0/0} (e1)
+    		 edge [<-, bend right] node [above]{1/0} (e0)
+    
+(e2)     	edge[loop below] node {0/1} (e2)
+ 	     	edge[<-, bend right] node [right] {1/1} (e1)
+	
+(e3)		 edge [<-, bend right] node [below] {1/1} (e2)
+		 edge [->, bend left] node [left] {1/0} (e0)
+		 edge[loop below] node {0/1} (e3);
+
+
+\end{tikzpicture}
+
+
+\end{figure}	
+
+Para a interpretação dos comandos, verificamos o byte armazenado no IR relativo a instrução. Dependendo de qual instrução é lida, mandamos os sinais necessários para as outras peças:
+
+\begin{itemize}
+
+\item \textbf{{\color{red}LDA:}} Deixa a memória no modo \emph{OUTPUT},  e ACC no modo \emph{INPUT}.
+
+\item \textbf{\color{red}STA:} Colcoa a memória no modo de \emph{INPUT}, e o ACC no modo de \emph{OUTPUT}.
+
+\item \textbf{\color{red}JMP:} Coloca o PC em modo de \emph{SET}, fazendo ele receber o endereço guardado no IR.
+
+\item \textbf{\color{red}NOP:} Não faz nada durante a fase 2 do controle.
+
+\item \textbf{\color{red}STOP:} Faz com que o clock pare de ser passado para o controle, parando todo o sistema.
+
+\end{itemize}
+
+
+
+
+
+\end{document}
